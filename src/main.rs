@@ -26,6 +26,8 @@ async fn main() {
 async fn handle_post(post_data: PostData) -> Result<impl warp::Reply, warp::Rejection> {
     let github_token = env::var("GITHUB_TOKEN").expect("GITHUB_TOKEN must be set");
     let octocrab = Octocrab::builder().personal_token(github_token).build().unwrap();
+    let owner = env::var("GITHUB_USERNAME").expect("GITHUB_USERNAME must be set");
+    let repo = env::var("GITHUB_REPO").expect("GITHUB_REPO must be set");
 
     let timestamp = Utc::now().timestamp().to_string();
     let filename = format!("collections/_bytes/{}.md", timestamp);
@@ -43,12 +45,11 @@ async fn handle_post(post_data: PostData) -> Result<impl warp::Reply, warp::Reje
     );
 
     let encoded_content = encode(file_content);
-    let owner = env::var("GITHUB_USERNAME").expect("GITHUB_USERNAME must be set");
-    let repo = env::var("GITHUB_REPO").expect("GITHUB_REPO must be set");
+    let commit_message = format!("Add {}", filename);
 
     let response = octocrab
         .repos(owner, repo)
-        .create_file(&filename, &encoded_content, &format!("Create new post: {}", post_data.title))
+        .create_file(&filename, &commit_message, &encoded_content)
         .branch("main")
         .send()
         .await;
