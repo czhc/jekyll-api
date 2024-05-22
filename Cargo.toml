@@ -8,7 +8,18 @@ warp = "0.3"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tokio = { version = "1", features = ["full"] }
-octocrab = "0.13"
-dotenv = "0.15"
-chrono = "0.4"
-base64 = "0.13"
+vercel_runtime = { version = "1.1.1" }  # Use the latest compatible version
+
+# Specify the version of bytes required by hyperx and octocrab
+bytes = "1.0.1"
+
+# Other dependencies
+octocrab = "0.38.0"
+dotenv = "0.15.0"
+chrono = "0.4.19"
+base64 = "0.13.0"
+percent-encoding = "2.1.0"  # Ensure compatibility with hyperx
+
+[[bin]]
+name = "handler"
+path = "api/main.rs"
