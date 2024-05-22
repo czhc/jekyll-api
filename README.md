@@ -16,3 +16,8 @@ cp .env.example .env
 ```
 
 2. Run `cargo run`. The API is now available at `http://localhost:3000`
+3. Deploy with vercel
+
+```sh
+vercel # or `vercel --prod` for production
+```
