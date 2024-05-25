@@ -5,6 +5,7 @@ Simple API server hosted serverlessly to allow publishing blog posts from a Slac
 
 ## Dependencies
 * Rust 1.78 [[guide](https://doc.rust-lang.org/cargo/getting-started/installation.html)]
+* Node 18 [[vercel](https://vercel.com/guides/serverless-function-contains-invalid-runtime-error)]
 
 
 ## How to Run
