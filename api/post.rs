@@ -1,8 +1,8 @@
 use vercel_runtime::{Body, Error, Request, Response, StatusCode};
-use octocrab::Octocrab;
+use octocrab::{Octocrab};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
-use serde_json::from_slice;
+use serde_json::{json, from_slice};
 use std::env;
 
 #[derive(Deserialize)]
@@ -22,14 +22,51 @@ struct SuccessResponse {
 struct ErrorResponse {
     error: String,
 }
+struct Config {
+    auth_token: String,
+    github_token: String,
+    github_username: String,
+    github_repo: String,
+}
+
+impl Config {
+    fn from_env() -> Result<Self, Error> {
+        dotenv::dotenv().ok();
+        let auth_token = env::var("BASIC_AUTH_TOKEN").map_err(|e| Error::from(e.to_string()))?;
+        let github_token = env::var("GITHUB_TOKEN").map_err(|e| Error::from(e.to_string()))?;
+        let github_username = env::var("GITHUB_USERNAME").map_err(|e| Error::from(e.to_string()))?;
+        let github_repo = env::var("GITHUB_REPO").map_err(|e| Error::from(e.to_string()))?;
+        Ok(Self {
+            auth_token,
+            github_token,
+            github_username,
+            github_repo,
+        })
+    }
+}
+
+async fn authenticate(req: &Request, auth_token: &str) -> Result<(), Response<Body>> {
+    if let Some(auth_header) = req.headers().get("Authorization") {
+        if auth_header.to_str().unwrap_or("") != auth_token {
+            return Err(Response::builder()
+                .status(StatusCode::UNAUTHORIZED)
+                .header("Content-Type", "application/json")
+                .body(Body::from(json!({"error": "Unauthorized"}).to_string()))
+                .expect("Failed to create response"));
+        }
+    } else {
+        return Err(Response::builder()
+            .status(StatusCode::UNAUTHORIZED)
+            .header("Content-Type", "application/json")
+            .body(Body::from(json!({"error": "Unauthorized"}).to_string()))
+            .expect("Failed to create response"));
+    }
+    Ok(())
+}
 
 pub async fn handler(req: Request) -> Result<Response<Body>, Error> {
-    dotenv::dotenv().ok();
-
-    let github_token = env::var("GITHUB_TOKEN").expect("GITHUB_TOKEN must be set");
-    let octocrab = Octocrab::builder().personal_token(github_token).build().unwrap();
-    let owner = env::var("GITHUB_USERNAME").expect("GITHUB_USERNAME must be set");
-    let repo = env::var("GITHUB_REPO").expect("GITHUB_REPO must be set");
+    let config = Config::from_env()?;
+    authenticate(&req, &config.auth_token).await?;
 
     let timestamp = Utc::now().timestamp().to_string();
     let filename = format!("collections/_bytes/{}.md", timestamp);
