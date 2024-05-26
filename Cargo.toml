@@ -6,8 +6,8 @@ edition = "2021"
 [dependencies]
 warp = "0.3"
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1", features = ["macros"] }
+serde_json = { version = "1", features = ["raw_value"] }
 vercel_runtime = { version = "1.1.1" }  # Use the latest compatible version
 
 # Specify the version of bytes required by hyperx and octocrab
@@ -21,5 +21,5 @@ base64 = "0.13.0"
 percent-encoding = "2.1.0"  # Ensure compatibility with hyperx
 
 [[bin]]
-name = "handler"
+name = "main"
 path = "api/main.rs"
