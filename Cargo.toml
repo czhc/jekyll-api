@@ -11,7 +11,7 @@ serde_json = { version = "1", features = ["raw_value"] }
 vercel_runtime = { version = "1.1.1" }  # Use the latest compatible version
 
 # Specify the version of bytes required by hyperx and octocrab
-bytes = "1.0.1"
+bytes = "1.11.1"
 
 # Other dependencies
 octocrab = "0.38.0"
